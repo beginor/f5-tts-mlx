@@ -80,7 +80,7 @@ class AudioPlayer:
 
     def queue_audio(self, samples):
         self.drain_event.clear()
-        
+
         with self.buffer_lock:
             self.audio_buffer.append(np.array(samples))
         if not self.playing:
@@ -93,7 +93,7 @@ class AudioPlayer:
         if self.playing:
             self.wait_for_drain()
             sd.sleep(100)
-            
+
             self.stream.stop()
             self.stream.close()
             self.playing = False
@@ -125,10 +125,11 @@ def generate(
     seed: Optional[int] = None,
     quantization_bits: Optional[int] = None,
     output_path: Optional[str] = None,
+    vocos_repo_path: str = "lucasnewman/vocos-mel-24khz",
 ):
     player = AudioPlayer(sample_rate=SAMPLE_RATE) if output_path is None else None
 
-    f5tts = F5TTS.from_pretrained(model_name, quantization_bits=quantization_bits)
+    f5tts = F5TTS.from_pretrained(model_name, quantization_bits=quantization_bits, vocos_repo_path=vocos_repo_path)
 
     if ref_audio_path is None:
         data = pkgutil.get_data("f5_tts_mlx", "tests/test_en_1_ref_short.wav")
@@ -154,7 +155,7 @@ def generate(
     rms = mx.sqrt(mx.mean(mx.square(audio)))
     if rms < TARGET_RMS:
         audio = audio * TARGET_RMS / rms
-    
+
     sentences = split_sentences(generation_text)
     is_single_generation = len(sentences) <= 1 or duration is not None
 
@@ -334,6 +335,12 @@ if __name__ == "__main__":
         default=None,
         help="Number of bits to use for quantization. 4 and 8 are supported.",
     )
+    parser.add_argument(
+        "--vocos",
+        type=str,
+        default="lucasnewman/vocos-mel-24khz",
+        help="Path to the vocos-mel-24khz repository",
+    )
 
     args = parser.parse_args()
 
@@ -359,4 +366,5 @@ if __name__ == "__main__":
         seed=args.seed,
         quantization_bits=args.q,
         output_path=args.output,
+        vocos_repo_path=args.vocos,
     )

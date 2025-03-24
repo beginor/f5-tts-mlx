@@ -407,6 +407,7 @@ class F5TTS(nn.Module):
         hf_model_name_or_path: str,
         convert_weights=None,
         quantization_bits: int | None = None,
+        vocos_repo_path: str = "lucasnewman/vocos-mel-24khz"
     ) -> F5TTS:
         path = fetch_from_hub(hf_model_name_or_path, quantization_bits=quantization_bits)
 
@@ -443,7 +444,7 @@ class F5TTS(nn.Module):
 
         # vocoder
 
-        vocos = Vocos.from_pretrained("lucasnewman/vocos-mel-24khz")
+        vocos = Vocos.from_pretrained(vocos_repo_path)
 
         # model
 

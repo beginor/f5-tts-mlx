@@ -177,6 +177,10 @@ def convert_char_to_pinyin(text_list, polyphone=True):
 
 
 def fetch_from_hub(hf_repo: str, quantization_bits: Optional[int] = None) -> Path:
+    model_path = Path(hf_repo)
+    if model_path.exists():
+        return model_path
+
     model_filename = "model_v1.safetensors"
     if exists(quantization_bits):
         model_filename = f"model_v1_{quantization_bits}b.safetensors"
